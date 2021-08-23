@@ -1,10 +1,12 @@
 #!/bin/bash
 
 # -----
-# Name: RIPv6
-# Copyright (c) 2016 Michael Schneider (scip AG)
-# Date: 27-05-2016
-# Version: 0.2.3
+# Name: RPIPv6
+# Copyright: 
+#  (c) 2016-2021 Michael Schneider (scip AG)
+#  (c) 2021 BackInBash
+# Date: 21-08-2021
+# Version: 0.0.1
 # -----
 
 # -----
