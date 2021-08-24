@@ -14,9 +14,11 @@
 # -----
 count=0
 cmd_ip="/sbin/ip"
-interface="ens33"
-network="2001:470:26:12b"
-gateway="2001:470:26:12b::1"
+cmd_awk="/usr/bin/awk"
+cmd_head="/usr/bin/head"
+squid_confd="/etc/squid/conf.d/"
+interface="eth0"
+network=$($cmd_ip -o -f inet6 addr show dev $interface | $cmd_awk '/scope global/ {print $4}' | $cmd_head -c -24)
 sleeptime="30s"
 
 # -----
@@ -39,31 +41,49 @@ while [ 0=1 ]
 do
   ip1=$(GenerateAddress)
   echo "[+] add ip1 $ip1"
+
   $cmd_ip -6 addr add $ip1/64 dev $interface
-  if [[ $count == 0 ]]; then
-    echo "[*] set default route"
-    $cmd_ip -6 route add default via $gateway dev $interface
-  fi
+  echo "acl ip1 random 1/3
+tcp_outgoing_address $ip1 ip1" > $squid_confd"01-random-ip1.conf"
+
   if [[ $count > 0 ]]; then
     echo "[-] del ip2 $ip2"
     $cmd_ip -6 addr del $ip2/64 dev $interface
+    rm $squid_confd"66-random-ip2.conf" > /dev/null 2>&1
   fi
+  /bin/systemctl reload squid
   sleep $sleeptime
+
 
   ip2=$(GenerateAddress)
   echo "[+] add ip2 $ip2"
+
   $cmd_ip -6 addr add $ip2/64 dev $interface
+  # Set IPv6 in Config
+  echo "acl ip2 random 1/2
+tcp_outgoing_address $ip2 ip2" > $squid_confd"02-random-ip2.conf"
+
   if [[ $count > 0 ]]; then
     echo "[-] del ip3 $ip3"
     $cmd_ip -6 addr del $ip3/64 dev $interface
+    rm $squid_confd"66-random-ip3.conf" > /dev/null 2>&1
   fi
+  /bin/systemctl reload squid
   sleep $sleeptime
+
 
   ip3=$(GenerateAddress)
   echo "[+] add ip3 $ip3"
   $cmd_ip -6 addr add $ip3/64 dev $interface
+
+  # Set IPv6 in Config
+  echo "acl ip3 random 1/1
+tcp_outgoing_address $ip3 ip3" > $squid_confd"03-random-ip3.conf"
+
   echo "[-] del ip1 $ip1"
   $cmd_ip -6 addr del $ip1/64 dev $interface
+  rm $squid_confd"66-random-ip1.conf" > /dev/null 2>&1
   ((count++))
+  /bin/systemctl reload squid
   sleep $sleeptime
 done
