@@ -1,17 +1,3 @@
-#!/bin/bash
-
-# -----
-# Name: RPIPv6
-# Copyright: 
-#  (c) 2016-2021 Michael Schneider (scip AG)
-#  (c) 2021 BackInBash
-# Date: 21-08-2021
-# Version: 0.0.1
-# -----
-
-# -----
-# Variables
-# -----
 count=0
 cmd_ip="/sbin/ip"
 cmd_awk="/usr/bin/awk"
